@@ -1,0 +1,120 @@
+/* Bridgewater Institutional Style Guide */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+    --paper: #fcfaf5;
+    --ink: #1a1a1a;
+    --accent: #002366; /* Bridgewater Navy */
+    --accent-red: #8b0000; /* Subtle Alert Burgundy */
+    --border: #d1d1d1;
+    --highlight: #fff9e6;
+}
+
+body {
+    font-family: 'Crimson Pro', 'Georgia', serif;
+    background-color: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    margin: 0;
+    padding: 60px 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.content-wrapper {
+    max-width: 850px;
+    width: 100%;
+    background: white;
+    padding: 60px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+header {
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin: 0;
+}
+
+h2, h3, h4 {
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin-top: 30px;
+}
+
+h2 { border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+p { margin-bottom: 20px; text-align: justify; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 30px 0;
+    font-size: 0.95rem;
+}
+
+table th {
+    background: var(--accent);
+    color: white;
+    padding: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    font-weight: normal;
+}
+
+table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.callout {
+    background: var(--highlight);
+    border-left: 4px solid var(--accent);
+    padding: 20px;
+    margin: 30px 0;
+    font-style: italic;
+}
+
+svg {
+    display: block;
+    margin: 40px auto;
+    filter: grayscale(0.2) contrast(1.1);
+}
+
+footer {
+    margin-top: 60px;
+    font-size: 0.8rem;
+    color: #888;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.confidential {
+    font-size: 0.7rem;
+    color: #aaa;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Specific to Option Strategies SVGs */
+svg line, svg polyline, svg path {
+    stroke-width: 2px;
+}
+
+svg text {
+    font-family: 'Georgia', serif;
+    font-size: 10px;
+    fill: var(--ink);
+}

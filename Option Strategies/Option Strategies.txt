@@ -1,0 +1,31 @@
+1. Orientation
+#fetch https://zerodha.com/varsity/chapter/orientation/
+2. Bull Call Spread
+#fetch https://zerodha.com/varsity/chapter/bull-call-spread/
+3. Bear Call Spread
+#fetch https://zerodha.com/varsity/chapter/bear-call-spread/
+4. Call Ratio Back Spread
+#fetch https://zerodha.com/varsity/chapter/call-ratio-back-spread/
+5. Bear Call Ladder
+#fetch https://zerodha.com/varsity/chapter/bear-call-ladder/
+6. Synthetic Long & Arbitrage
+#fetch https://zerodha.com/varsity/chapter/synthetic-long-arbitrage/
+7. Bear Put Spread
+#fetch https://zerodha.com/varsity/chapter/bear-put-spread/
+8. Bear Call Spread
+#fetch https://zerodha.com/varsity/chapter/bear-call-spread/
+9. Put Ratio Back spread
+#fetch https://zerodha.com/varsity/chapter/put-ratio-back-spread/
+10. The Long Straddle
+#fetch https://zerodha.com/varsity/chapter/the-long-straddle/
+11. The Short Straddle
+#fetch https://zerodha.com/varsity/chapter/the-short-straddle/
+12. The Long & Short Strangle
+#fetch https://zerodha.com/varsity/chapter/the-long-short-strangle/
+13. Max Pain & PCR Ratio
+#fetch https://zerodha.com/varsity/chapter/max-pain-pcr-ratio/
+14. Iron Condor
+#fetch https://zerodha.com/varsity/chapter/iron-condor/
+
+#fetch https://www.macroption.com/all-option-strategies/
+#fetch https://www.optionseducation.org/strategies/all-strategies-en

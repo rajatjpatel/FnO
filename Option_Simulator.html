@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Option Simulation | Bridgewater Lab</title>
+    <link rel="stylesheet" href="Bridgewater.css">
+    <style>
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .control-panel {
+            background: #fff;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+        }
+
+        .results-display {
+            background: #fdfaf5;
+            padding: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .pnl-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .pnl-hero .val {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .pnl-hero.profit { color: var(--accent); }
+        .pnl-hero.loss { color: var(--accent-red); }
+
+        .viz-container {
+            height: 300px;
+            position: relative;
+            border-bottom: 2px solid #000;
+            margin: 40px 0;
+        }
+
+        .payoff-line {
+            stroke: var(--accent);
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .zero-line {
+            stroke: #ccc;
+            stroke-dasharray: 4;
+        }
+
+        .price-marker {
+            stroke: var(--accent-red);
+            stroke-dasharray: 2;
+        }
+
+        .slider-wrap {
+            margin-top: 20px;
+        }
+
+        .slider-wrap input {
+            width: 100%;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .metric-box {
+            text-align: center;
+            border: 1px solid var(--border);
+            padding: 10px;
+            background: white;
+        }
+
+        .metric-box span { display: block; font-size: 0.7rem; color: #888; }
+        .metric-box strong { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="content-wrapper">
+    <div class="confidential">SYSTEM SIMULATION | RISK MANAGEMENT UNIT</div>
+    
+    <header>
+        <h1>Institutional Option Exercise</h1>
+    </header>
+
+    <p>This interactive module allows for the empirical verification of option payoffs under varying environmental parameters. Adjust the inputs below to simulate forward and backward price movements.</p>
+
+    <div class="simulator-grid">
+        <!-- Controls -->
+        <div class="control-panel">
+            <div class="control-group">
+                <label>Option Type</label>
+                <select id="optType">
+                    <option value="call">Long Call</option>
+                    <option value="put">Long Put</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Spot Price ($)</label>
+                <input type="number" id="spotPrice" value="2500" step="10">
+            </div>
+            <div class="control-group">
+                <label>Strike Price ($)</label>
+                <input type="number" id="strikePrice" value="2550" step="10">
+            </div>
+            <div class="control-group">
+                <label>Premium Paid ($)</label>
+                <input type="number" id="premium" value="50">
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-display">
+            <div class="pnl-hero" id="pnlBox">
+                <span style="font-size: 0.8rem; text-transform: uppercase;">Simulated Net P&L</span>
+                <div class="val" id="pnlVal">$0.00</div>
+            </div>
+
+            <div class="viz-container">
+                <svg width="100%" height="100%" id="payoffSvg">
+                    <!-- Zero Line -->
+                    <line x1="0" y1="150" x2="100%" y2="150" class="zero-line" />
+                    <!-- Payoff Curve -->
+                    <path d="" id="payoffPath" class="payoff-line" />
+                    <!-- Current Price Marker -->
+                    <line x1="50%" y1="0" x2="50%" y2="100%" class="price-marker" id="priceMarker" />
+                </svg>
+            </div>
+
+            <div class="slider-wrap">
+                <label style="font-size: 0.7rem;">SIMULATE PRICE MOVEMENT (FORWARD/BACKWARD)</label>
+                <input type="range" id="priceSlider" min="0.5" max="1.5" step="0.01" value="1">
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #888;">
+                    <span>-50% Crash</span>
+                    <span id="currentSimPrice">Target: $2,500</span>
+                    <span>+50% Rally</span>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-box"><span>Intrinsic Value</span><strong id="intrinsicVal">$0.00</strong></div>
+                <div class="metric-box"><span>Time Value</span><strong id="timeVal">$50.00</strong></div>
+                <div class="metric-box"><span>Break-Even</span><strong id="bePrice">$2,600</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Bridgewater Lab | Strategic Simulation Unit 2026
+    </footer>
+</div>
+
+<script>
+    const spotInput = document.getElementById('spotPrice');
+    const strikeInput = document.getElementById('strikePrice');
+    const premInput = document.getElementById('premium');
+    const typeInput = document.getElementById('optType');
+    const slider = document.getElementById('priceSlider');
+    
+    const pnlVal = document.getElementById('pnlVal');
+    const pnlBox = document.getElementById('pnlBox');
+    const currentSimPrice = document.getElementById('currentSimPrice');
+    const intrinsicVal = document.getElementById('intrinsicVal');
+    const timeVal = document.getElementById('timeVal');
+    const bePrice = document.getElementById('bePrice');
+    const payoffPath = document.getElementById('payoffPath');
+    const priceMarker = document.getElementById('priceMarker');
+
+    function update() {
+        const spot = parseFloat(spotInput.value);
+        const strike = parseFloat(strikeInput.value);
+        const prem = parseFloat(premInput.value);
+        const type = typeInput.value;
+        const multiplier = parseFloat(slider.value);
+        
+        const simPrice = spot * multiplier;
+        currentSimPrice.innerText = `Target: $${simPrice.toFixed(0)}`;
+        
+        // P&L Calculation
+        let gain = 0;
+        if(type === 'call') {
+            gain = Math.max(0, simPrice - strike) - prem;
+            intrinsicVal.innerText = `$${Math.max(0, simPrice - strike).toFixed(2)}`;
+            bePrice.innerText = `$${(strike + prem).toFixed(0)}`;
+        } else {
+            gain = Math.max(0, strike - simPrice) - prem;
+            intrinsicVal.innerText = `$${Math.max(0, strike - simPrice).toFixed(2)}`;
+            bePrice.innerText = `$${(strike - prem).toFixed(0)}`;
+        }
+
+        pnlVal.innerText = (gain >= 0 ? '+' : '-') + '$' + Math.abs(gain).toFixed(2);
+        pnlBox.className = 'pnl-hero ' + (gain >= 0 ? 'profit' : 'loss');
+
+        // Draw SVG Payoff
+        const w = 500;
+        const h = 300;
+        const yZero = 150;
+        const scaleX = w / (spot * 1); // width covers 1x spot range around middle
+        const scaleY = 0.5; // profit scale
+        
+        let d = "";
+        for(let i=0; i<=w; i+=5) {
+            let xPrice = spot * 0.5 + (i/w) * spot;
+            let iGain = 0;
+            if(type === 'call') iGain = Math.max(0, xPrice - strike) - prem;
+            else iGain = Math.max(0, strike - xPrice) - prem;
+            
+            let y = yZero - iGain * scaleY;
+            d += (i===0 ? "M" : "L") + i + "," + y;
+        }
+        payoffPath.setAttribute('d', d);
+        
+        // Update Marker
+        let markerX = ((multiplier - 0.5) / 1) * 100;
+        priceMarker.setAttribute('x1', markerX + '%');
+        priceMarker.setAttribute('x2', markerX + '%');
+    }
+
+    [spotInput, strikeInput, premInput, typeInput, slider].forEach(el => el.addEventListener('input', update));
+    update();
+</script>
+
+</body>
+</html>

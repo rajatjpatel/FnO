@@ -1,0 +1,30 @@
+I am seeking to generate approximately 20,000 words in two different formats: Markdown (MD) and HTML, incorporating SVG for all the images from the “Futures Trading” tutorial. These documents are intended for educational purposes and should be accessible to individuals with no prior experience in the financial market. The content should be straightforward and easy to comprehend, catering to a wide range of readers, including young individuals. The writing style should be detailed yet concise, avoiding the use of excessive jargon. Instead of simply copying and pasting content from the provided URLs, I encourage you to engage in creative thinking and develop unique experiences for the user. In total 13 chapters we have for this tutorial I am want to check with with 1st chapter and see how's content base on that we will go for next chapter. At the same time I want you to change all name are use in the original tutorial as well if they have user any symbol for example that well need to change with diff number and same logic/math.
+
+
+* [Background – Forwards Market](#background--forwards-market) 
+#fetch https://zerodha.com/varsity/chapter/background-forwards-market/
+* [Introducing Futures Contract](#introducing-futures-contract)
+#fetch https://zerodha.com/varsity/chapter/introducing-futures-contract/
+* [The Futures Trade](#the-futures-trade)
+#fetch https://zerodha.com/varsity/chapter/futures-trade/
+* [Leverage &amp; Payoff](#leverage--payoff)
+#fetch https://zerodha.com/varsity/chapter/leverage-payoff/
+* [Margin &amp; M2M](#margin--m2m)
+#fetch https://zerodha.com/varsity/chapter/margin-m2m/
+* [Margin Calculator (Part 1)](#margin-calculator-part-1)
+#fetch https://zerodha.com/varsity/chapter/margin-calculator-part-1/
+* [Margin Calculator (Part 2)](#margin-calculator-part-2)
+#fetch https://zerodha.com/varsity/chapter/margin-calculator-part-2/
+* [All about Shorting](#all-about-shorting)#fetch 
+https://zerodha.com/varsity/chapter/shorting/
+* [The Nifty Futures](#the-nifty-futures)
+#fetch https://zerodha.com/varsity/chapter/nifty-futures/
+* [The Futures Pricing](#the-futures-pricing)
+#fetch https://zerodha.com/varsity/chapter/futures-pricing/
+* [Hedging with Futures](#hedging-with-futures)
+#fetch https://zerodha.com/varsity/chapter/hedging-futures/
+* [Open Interest](#open-interest)
+#fetch https://zerodha.com/varsity/chapter/open-interest/
+* [Quick Note on Physical Settlement](#quick-note-on-physical-settlement)
+#fetch https://zerodha.com/varsity/chapter/quick-note-on-physical-settlement/
+

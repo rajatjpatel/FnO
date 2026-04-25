@@ -1,0 +1,51 @@
+Options Theory for Professional Trading
+1. Call Option Basics 
+#fetch https://zerodha.com/varsity/chapter/call-option-basics/
+2. Basic Option Jargons
+#fetch https://zerodha.com/varsity/chapter/basic-option-jargons/
+3. Buying a Call Option
+#fetch https://zerodha.com/varsity/chapter/buying-a-call-option/
+4. Selling/Writing a Call Option
+#fetch https://zerodha.com/varsity/chapter/sellingwriting-a-call-option/
+5. The Put Option Buying
+#fetch 5. The Put Option Buying
+6. The Put Option selling
+#fetch https://zerodha.com/varsity/chapter/the-put-option-selling/
+7. Summarizing Call & Put Options
+#Fetch https://zerodha.com/varsity/chapter/summarizing-call-put-options/
+8. Moneyness of an Option Contract
+#fetch https://zerodha.com/varsity/chapter/moneyness-of-an-option-contract/
+9. The Option Greeks (Delta) Part 1
+#fetch https://zerodha.com/varsity/chapter/the-option-greeks-delta-part-1/
+10. Delta (Part 2)
+#fetch https://zerodha.com/varsity/chapter/delta-part-2/
+11. Delta (Part 3)
+#fetch https://zerodha.com/varsity/chapter/delta-part-3/
+12. Gamma (Part 1)
+#fetch https://zerodha.com/varsity/chapter/gamma-part-1/
+13. Gamma (Part 2)
+#fetch https://zerodha.com/varsity/chapter/gamma-part-2/
+14. Theta
+#fetch https://zerodha.com/varsity/chapter/theta/
+15. Volatility Basics
+#fetch https://zerodha.com/varsity/chapter/understanding-volatility-part-1/
+16. Volatility Calculation (Historical)
+#fetch https://zerodha.com/varsity/chapter/volatility-calculation-historical/
+17. Volatility & Normal Distribution
+#fetch https://zerodha.com/varsity/chapter/volatility-normal-distribution/
+18. Volatility Applications
+#fetch https://zerodha.com/varsity/chapter/volatility-applications/
+19. Vega
+#fetch https://zerodha.com/varsity/chapter/vega/
+20. Greek Interactions
+#fetch https://zerodha.com/varsity/chapter/greek-interactions/
+21. Greek Calculator
+#fetch https://zerodha.com/varsity/chapter/greek-calculator/
+22. Re-introducing Call & Put Options
+#fetch https://zerodha.com/varsity/chapter/re-introducing-call-put-options/
+23. Case studies – wrapping it all up!
+#fetch https://zerodha.com/varsity/chapter/case-studies-wrapping-it-all-up/
+24. Quick note on Physical Settlement
+#fetch https://zerodha.com/varsity/chapter/quick-note-on-physical-settlement-2/
+25. Options M2M and P&L calculation
+#fetch https://zerodha.com/varsity/chapter/options-m2m-and-pl/
