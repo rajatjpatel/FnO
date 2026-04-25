@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Builder | Bridgewater Options Architecture</title>
+    <link rel="stylesheet" href="Bridgewater.css">
+    <style>
+        :root {
+            --paper: #fcfaf5;
+            --ink: #1a1a1a;
+            --accent: #002366;
+            --accent-red: #8b0000;
+            --accent-green: #006622;
+            --border: #d1d1d1;
+            --highlight: #fff9e6;
+            --panel-bg: #f5f5f0;
+        }
+
+        body {
+            font-family: 'Crimson Pro', 'Georgia', serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            padding: 40px 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 30px;
+        }
+
+        /* LEFT PANEL - STRATEGY SELECTION */
+        .strategy-selector {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .strategy-selector h2 {
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .strategy-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .strategy-card {
+            padding: 12px;
+            border: 1px solid var(--border);
+            background: var(--panel-bg);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .strategy-card:hover {
+            background: white;
+            border-left-color: var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .strategy-card.active {
+            background: var(--highlight);
+            border-left-color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .strategy-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--accent);
+        }
+
+        .strategy-view {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        /* CENTER PANEL - BUILDER */
+        .builder-panel {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .builder-header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 15px;
+        }
+
+        .builder-header h1 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .builder-header p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+
+        .option-chain-section {
+            background: var(--panel-bg);
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .option-chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .option-chain-header h3 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: var(--ink);
+            margin: 0;
+        }
+
+        .refresh-btn {
+            padding: 6px 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.9;
+        }
+
+        .legs-builder {
+            display: grid;
+            gap: 15px;
+        }
+
+        .leg {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .leg.put {
+            border-left-color: var(--accent-red);
+        }
+
+        .leg.call {
+            border-left-color: var(--accent-green);
+        }
+
+        .leg-control {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .leg-control label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .leg-control select,
+        .leg-control input {
+            padding: 6px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .leg-remove {
+            padding: 6px 10px;
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .add-leg-btn {
+            padding: 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .add-leg-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* RIGHT PANEL - ANALYTICS */
+        .analytics-panel {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .analytics-panel h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .metric-value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .metric-value.profit {
+            color: var(--accent-green);
+        }
+
+        .metric-value.loss {
+            color: var(--accent-red);
+        }
+
+        .payoff-chart {
+            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        .payoff-chart canvas {
+            width: 100%;
+            height: 200px;
+        }
+
+        /* CHART */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            padding: 10px;
+        }
+
+        .chart-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* TABLE */
+        .strategies-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .strategies-table th {
+            background: var(--accent);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            text-transform: uppercase;
+            font-weight: normal;
+            font-size: 0.75rem;
+        }
+
+        .strategies-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .strategies-table tr:hover {
+            background: var(--highlight);
+        }
+
+        /* STATUS */
+        .status-message {
+            padding: 15px;
+            background: var(--highlight);
+            border-left: 4px solid var(--accent);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .status-message.error {
+            background: #ffeeee;
+            border-left-color: var(--accent-red);
+        }
+
+        .status-message.success {
+            background: #eefff0;
+            border-left-color: var(--accent-green);
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .strategy-selector,
+            .analytics-panel {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- LEFT PANEL: Strategy Selection -->
+    <div class="strategy-selector">
+        <h2>Strategy Library</h2>
+        
+        <div class="filter-group">
+            <label>Market View</label>
+            <select id="viewFilter">
+                <option value="">All Strategies</option>
+                <option value="bullish">Bullish</option>
+                <option value="bearish">Bearish</option>
+                <option value="neutral">Neutral</option>
+                <option value="volatile">High Volatility</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Risk Profile</label>
+            <select id="riskFilter">
+                <option value="">All Risk Levels</option>
+                <option value="income">Income (Low Risk)</option>
+                <option value="moderate">Moderate Risk</option>
+                <option value="directional">Directional (High Risk)</option>
+            </select>
+        </div>
+
+        <div class="strategy-list" id="strategyList">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- CENTER PANEL: Builder -->
+    <div class="builder-panel">
+        <div class="builder-header">
+            <h1 id="strategyTitle">Strategy Builder</h1>
+            <p id="strategyDescription">Select a strategy from the library to begin</p>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="option-chain-section">
+            <div class="option-chain-header">
+                <h3>Underlying & Expiry</h3>
+                <button class="refresh-btn" onclick="fetchOptionChain()">↻ Refresh Data</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="leg-control">
+                    <label>Underlying</label>
+                    <input type="text" id="underlying" value="NIFTY" placeholder="e.g., NIFTY, BANKNIFTY" />
+                </div>
+                <div class="leg-control">
+                    <label>Expiry Date</label>
+                    <select id="expiryDate">
+                        <option>Loading...</option>
+                    </select>
+                </div>
+                <div class="leg-control">
+                    <label>Current Price</label>
+                    <input type="number" id="currentPrice" placeholder="23897.95" readonly style="background: #f0f0f0;" />
+                </div>
+                <div class="leg-control">
+                    <label>Data Status</label>
+                    <input type="text" id="dataStatus" placeholder="Not loaded" readonly style="background: #f0f0f0; color: #999;" />
+                </div>
+            </div>
+        </div>
+
+        <div class="legs-builder">
+            <h3 style="text-transform: uppercase; color: var(--accent); margin: 10px 0;">Strategy Legs</h3>
+            <div id="legsContainer"></div>
+            <button class="add-leg-btn" onclick="addLeg()">+ Add Leg</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+            <button style="padding: 12px; background: var(--accent); color: white; border: none; cursor: pointer; text-transform: uppercase; font-weight: bold;" onclick="buildStrategy()">Build Strategy</button>
+            <button style="padding: 12px; background: #999; color: white; border: none; cursor: pointer; text-transform: uppercase;" onclick="clearBuilder()">Clear</button>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: Analytics -->
+    <div class="analytics-panel">
+        <h2>Strategy Analysis</h2>
+        
+        <div class="metric-row">
+            <div>
+                <div class="metric-label">Max Profit</div>
+                <div class="metric-value profit" id="maxProfit">—</div>
+            </div>
+            <div>
+                <div class="metric-label">Max Loss</div>
+                <div class="metric-value loss" id="maxLoss">—</div>
+            </div>
+        </div>
+
+        <div class="metric-row">
+            <div>
+                <div class="metric-label">Breakeven</div>
+                <div class="metric-value" id="breakeven">—</div>
+            </div>
+            <div>
+                <div class="metric-label">Current P&L</div>
+                <div class="metric-value" id="currentPnL">—</div>
+            </div>
+        </div>
+
+        <div class="metric-row">
+            <div>
+                <div class="metric-label">Net Debit/Credit</div>
+                <div class="metric-value" id="netCost">—</div>
+            </div>
+            <div>
+                <div class="metric-label">Profit Factor</div>
+                <div class="metric-value" id="profitFactor">—</div>
+            </div>
+        </div>
+
+        <div class="metric-row">
+            <div>
+                <div class="metric-label">Probability Win</div>
+                <div class="metric-value" id="probWin">—</div>
+            </div>
+            <div>
+                <div class="metric-label">Greeks - Delta</div>
+                <div class="metric-value" id="totalDelta">—</div>
+            </div>
+        </div>
+
+        <div class="payoff-chart">
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: #666; margin-bottom: 10px;">Payoff Diagram</div>
+            <div class="chart-container">
+                <svg id="payoffSvg" viewBox="0 0 400 200">
+                    <line x1="0" y1="100" x2="400" y2="100" stroke="#ccc" stroke-dasharray="2" />
+                    <line x1="0" y1="0" x2="0" y2="200" stroke="#ccc" />
+                    <text x="5" y="15" font-size="10" fill="#666">Profit</text>
+                    <text x="5" y="190" font-size="10" fill="#666">Loss</text>
+                </svg>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 30px;">Greeks Summary</h2>
+        <table class="strategies-table" style="font-size: 0.8rem;">
+            <tr style="background: var(--accent); color: white;">
+                <td style="padding: 8px;">Delta</td>
+                <td style="padding: 8px;" id="greeksDelta">—</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px;">Gamma</td>
+                <td style="padding: 8px;" id="greeksGamma">—</td>
+            </tr>
+            <tr style="background: var(--panel-bg);">
+                <td style="padding: 8px;">Theta</td>
+                <td style="padding: 8px;" id="greeksTheta">—</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px;">Vega</td>
+                <td style="padding: 8px;" id="greeksVega">—</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+// Strategy Library
+const strategyLibrary = [
+    {
+        name: "Buy Call",
+        category: "Directional",
+        view: "bullish",
+        risk: "directional",
+        description: "Long Call - Unlimited profit, limited loss",
+        legs: [{ type: "CALL", side: "BUY", strike_offset: 0, quantity: 1 }]
+    },
+    {
+        name: "Buy Put",
+        category: "Directional",
+        view: "bearish",
+        risk: "directional",
+        description: "Long Put - Profit from downside, limited loss",
+        legs: [{ type: "PUT", side: "BUY", strike_offset: 0, quantity: 1 }]
+    },
+    {
+        name: "Sell Call",
+        category: "Income",
+        view: "bearish",
+        risk: "income",
+        description: "Short Call - Limited profit, unlimited loss",
+        legs: [{ type: "CALL", side: "SELL", strike_offset: 0, quantity: 1 }]
+    },
+    {
+        name: "Sell Put",
+        category: "Income",
+        view: "bullish",
+        risk: "income",
+        description: "Short Put - Income strategy with limited loss",
+        legs: [{ type: "PUT", side: "SELL", strike_offset: 0, quantity: 1 }]
+    },
+    {
+        name: "Bull Call Spread",
+        category: "Vertical Spread",
+        view: "bullish",
+        risk: "moderate",
+        description: "Buy lower strike call, sell higher strike call",
+        legs: [
+            { type: "CALL", side: "BUY", strike_offset: 0, quantity: 1 },
+            { type: "CALL", side: "SELL", strike_offset: 200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Bull Put Spread",
+        category: "Vertical Spread",
+        view: "bullish",
+        risk: "moderate",
+        description: "Sell lower strike put, buy higher strike put",
+        legs: [
+            { type: "PUT", side: "SELL", strike_offset: -200, quantity: 1 },
+            { type: "PUT", side: "BUY", strike_offset: -400, quantity: 1 }
+        ]
+    },
+    {
+        name: "Bear Call Spread",
+        category: "Vertical Spread",
+        view: "bearish",
+        risk: "moderate",
+        description: "Sell lower strike call, buy higher strike call",
+        legs: [
+            { type: "CALL", side: "SELL", strike_offset: 0, quantity: 1 },
+            { type: "CALL", side: "BUY", strike_offset: 200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Bear Put Spread",
+        category: "Vertical Spread",
+        view: "bearish",
+        risk: "moderate",
+        description: "Buy lower strike put, sell higher strike put",
+        legs: [
+            { type: "PUT", side: "BUY", strike_offset: -400, quantity: 1 },
+            { type: "PUT", side: "SELL", strike_offset: -200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Long Straddle",
+        category: "Volatility",
+        view: "volatile",
+        risk: "moderate",
+        description: "Buy ATM call and put - profit from large moves",
+        legs: [
+            { type: "CALL", side: "BUY", strike_offset: 0, quantity: 1 },
+            { type: "PUT", side: "BUY", strike_offset: 0, quantity: 1 }
+        ]
+    },
+    {
+        name: "Long Strangle",
+        category: "Volatility",
+        view: "volatile",
+        risk: "moderate",
+        description: "Buy OTM call and OTM put - lower cost straddle",
+        legs: [
+            { type: "CALL", side: "BUY", strike_offset: 200, quantity: 1 },
+            { type: "PUT", side: "BUY", strike_offset: -200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Short Straddle",
+        category: "Volatility",
+        view: "neutral",
+        risk: "directional",
+        description: "Sell ATM call and put - profit from low volatility",
+        legs: [
+            { type: "CALL", side: "SELL", strike_offset: 0, quantity: 1 },
+            { type: "PUT", side: "SELL", strike_offset: 0, quantity: 1 }
+        ]
+    },
+    {
+        name: "Iron Condor",
+        category: "Multi-leg",
+        view: "neutral",
+        risk: "income",
+        description: "Sell call and put spreads - bounded profit range",
+        legs: [
+            { type: "CALL", side: "SELL", strike_offset: 200, quantity: 1 },
+            { type: "CALL", side: "BUY", strike_offset: 400, quantity: 1 },
+            { type: "PUT", side: "SELL", strike_offset: -200, quantity: 1 },
+            { type: "PUT", side: "BUY", strike_offset: -400, quantity: 1 }
+        ]
+    },
+    {
+        name: "Call Ratio Backspread",
+        category: "Multi-leg",
+        view: "bullish",
+        risk: "directional",
+        description: "Sell lower call, buy more higher calls",
+        legs: [
+            { type: "CALL", side: "SELL", strike_offset: 0, quantity: 1 },
+            { type: "CALL", side: "BUY", strike_offset: 200, quantity: 2 }
+        ]
+    },
+    {
+        name: "Butterfly Spread",
+        category: "Multi-leg",
+        view: "neutral",
+        risk: "moderate",
+        description: "Buy wings, sell body - low risk, limited profit",
+        legs: [
+            { type: "CALL", side: "BUY", strike_offset: -200, quantity: 1 },
+            { type: "CALL", side: "SELL", strike_offset: 0, quantity: 2 },
+            { type: "CALL", side: "BUY", strike_offset: 200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Covered Call",
+        category: "Income",
+        view: "bullish",
+        risk: "income",
+        description: "Long stock + short call - generate income",
+        legs: [
+            { type: "STOCK", side: "BUY", strike_offset: 0, quantity: 100 },
+            { type: "CALL", side: "SELL", strike_offset: 200, quantity: 1 }
+        ]
+    },
+    {
+        name: "Protective Put",
+        category: "Hedging",
+        view: "bullish",
+        risk: "moderate",
+        description: "Long stock + long put - downside protection",
+        legs: [
+            { type: "STOCK", side: "BUY", strike_offset: 0, quantity: 100 },
+            { type: "PUT", side: "BUY", strike_offset: -200, quantity: 1 }
+        ]
+    }
+];
+
+let currentStrategy = null;
+let optionChainData = null;
+let currentLegs = [];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadStrategyList();
+    setupEventListeners();
+    fetchOptionChain();
+});
+
+function loadStrategyList() {
+    const strategyList = document.getElementById('strategyList');
+    strategyList.innerHTML = '';
+    
+    strategyLibrary.forEach((strategy, index) => {
+        const card = document.createElement('div');
+        card.className = 'strategy-card';
+        card.onclick = () => selectStrategy(strategy, card);
+        card.innerHTML = `
+            <div class="strategy-name">${strategy.name}</div>
+            <div class="strategy-view">${strategy.category}</div>
+        `;
+        strategyList.appendChild(card);
+    });
+}
+
+function selectStrategy(strategy, element) {
+    currentStrategy = strategy;
+    document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+    
+    document.getElementById('strategyTitle').textContent = strategy.name;
+    document.getElementById('strategyDescription').textContent = strategy.description;
+    
+    loadStrategyLegs(strategy);
+}
+
+function loadStrategyLegs(strategy) {
+    currentLegs = JSON.parse(JSON.stringify(strategy.legs));
+    renderLegs();
+}
+
+function renderLegs() {
+    const container = document.getElementById('legsContainer');
+    container.innerHTML = '';
+    
+    currentLegs.forEach((leg, index) => {
+        const legEl = document.createElement('div');
+        legEl.className = `leg ${leg.type === 'CALL' ? 'call' : 'put'}`;
+        
+        const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
+        const strike = currentPrice + leg.strike_offset;
+        
+        legEl.innerHTML = `
+            <div class="leg-control">
+                <label>Type</label>
+                <select onchange="updateLeg(${index}, 'type', this.value)">
+                    <option value="CALL" ${leg.type === 'CALL' ? 'selected' : ''}>CALL</option>
+                    <option value="PUT" ${leg.type === 'PUT' ? 'selected' : ''}>PUT</option>
+                </select>
+            </div>
+            <div class="leg-control">
+                <label>Side</label>
+                <select onchange="updateLeg(${index}, 'side', this.value)">
+                    <option value="BUY" ${leg.side === 'BUY' ? 'selected' : ''}>BUY</option>
+                    <option value="SELL" ${leg.side === 'SELL' ? 'selected' : ''}>SELL</option>
+                </select>
+            </div>
+            <div class="leg-control">
+                <label>Strike</label>
+                <input type="number" value="${strike.toFixed(0)}" onchange="updateLeg(${index}, 'strike_offset', this.value - ${currentPrice})" />
+            </div>
+            <div class="leg-control">
+                <label>Qty</label>
+                <input type="number" value="${leg.quantity}" min="1" onchange="updateLeg(${index}, 'quantity', this.value)" />
+            </div>
+            <div class="leg-control">
+                <label>Price</label>
+                <input type="number" value="0" placeholder="Premium" />
+            </div>
+            <button class="leg-remove" onclick="removeLeg(${index})">Remove</button>
+        `;
+        container.appendChild(legEl);
+    });
+}
+
+function updateLeg(index, field, value) {
+    currentLegs[index][field] = isNaN(value) ? value : parseFloat(value);
+    renderLegs();
+    calculateAnalytics();
+}
+
+function removeLeg(index) {
+    currentLegs.splice(index, 1);
+    renderLegs();
+    calculateAnalytics();
+}
+
+function addLeg() {
+    currentLegs.push({ type: "CALL", side: "BUY", strike_offset: 0, quantity: 1 });
+    renderLegs();
+    calculateAnalytics();
+}
+
+function buildStrategy() {
+    if (!currentStrategy) {
+        showStatus('Please select a strategy first', 'error');
+        return;
+    }
+    
+    if (currentLegs.length === 0) {
+        showStatus('Add at least one leg to the strategy', 'error');
+        return;
+    }
+    
+    calculateAnalytics();
+    showStatus(`Strategy "${currentStrategy.name}" built successfully with ${currentLegs.length} legs`, 'success');
+}
+
+function calculateAnalytics() {
+    const priceRange = generatePriceRange();
+    const payoffs = calculatePayoffs(priceRange);
+    
+    updateMetrics(payoffs);
+    drawPayoffDiagram(priceRange, payoffs);
+}
+
+function generatePriceRange() {
+    const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 25000;
+    const range = currentPrice * 0.1; // 10% range
+    const points = 50;
+    const result = [];
+    
+    for (let i = 0; i < points; i++) {
+        result.push(currentPrice - range + (i * 2 * range / points));
+    }
+    return result;
+}
+
+function calculatePayoffs(priceRange) {
+    return priceRange.map(price => {
+        let totalPayoff = 0;
+        
+        currentLegs.forEach(leg => {
+            let payoff = 0;
+            const intrinsic = leg.type === 'CALL' 
+                ? Math.max(0, price - (parseFloat(document.getElementById('currentPrice').value) + leg.strike_offset))
+                : Math.max(0, (parseFloat(document.getElementById('currentPrice').value) + leg.strike_offset) - price);
+            
+            if (leg.side === 'BUY') {
+                payoff = intrinsic * leg.quantity;
+            } else {
+                payoff = -intrinsic * leg.quantity;
+            }
+            
+            totalPayoff += payoff;
+        });
+        
+        return totalPayoff;
+    });
+}
+
+function updateMetrics(payoffs) {
+    const maxProfit = Math.max(...payoffs);
+    const maxLoss = Math.min(...payoffs);
+    const netCost = currentLegs.reduce((sum, leg) => sum + (leg.side === 'BUY' ? 100 : -100) * leg.quantity, 0);
+    
+    document.getElementById('maxProfit').textContent = `$${maxProfit.toFixed(0)}`;
+    document.getElementById('maxProfit').classList.toggle('profit', maxProfit > 0);
+    
+    document.getElementById('maxLoss').textContent = `$${maxLoss.toFixed(0)}`;
+    document.getElementById('maxLoss').classList.toggle('loss', maxLoss < 0);
+    
+    document.getElementById('netCost').textContent = `$${netCost.toFixed(0)}`;
+    
+    const profitFactor = maxLoss !== 0 ? Math.abs(maxProfit / maxLoss) : Infinity;
+    document.getElementById('profitFactor').textContent = profitFactor.toFixed(2);
+    
+    document.getElementById('breakeven').textContent = `Multiple`;
+    document.getElementById('currentPnL').textContent = `$0.00`;
+    document.getElementById('probWin').textContent = `TBD`;
+    document.getElementById('totalDelta').textContent = `0.5`;
+    
+    document.getElementById('greeksDelta').textContent = '0.50';
+    document.getElementById('greeksGamma').textContent = '0.02';
+    document.getElementById('greeksTheta').textContent = '5.00';
+    document.getElementById('greeksVega').textContent = '-8.50';
+}
+
+function drawPayoffDiagram(priceRange, payoffs) {
+    const svg = document.getElementById('payoffSvg');
+    const width = 400, height = 200;
+    const minPrice = Math.min(...priceRange);
+    const maxPrice = Math.max(...priceRange);
+    const minPayoff = Math.min(...payoffs);
+    const maxPayoff = Math.max(...payoffs);
+    
+    const xScale = width / (maxPrice - minPrice);
+    const yScale = height / (maxPayoff - minPayoff + 100);
+    
+    let pathD = '';
+    payoffs.forEach((payoff, i) => {
+        const x = (priceRange[i] - minPrice) * xScale;
+        const y = height - ((payoff - minPayoff + 50) * yScale);
+        pathD += (i === 0 ? 'M' : 'L') + x + ',' + y;
+    });
+    
+    let payoffPath = svg.querySelector('path[id="payoffLine"]');
+    if (!payoffPath) {
+        payoffPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        payoffPath.id = 'payoffLine';
+        payoffPath.setAttribute('stroke', '#002366');
+        payoffPath.setAttribute('stroke-width', '2');
+        payoffPath.setAttribute('fill', 'none');
+        svg.appendChild(payoffPath);
+    }
+    payoffPath.setAttribute('d', pathD);
+}
+
+function fetchOptionChain() {
+    const underlying = document.getElementById('underlying').value || 'NIFTY';
+    const statusEl = document.getElementById('dataStatus');
+    
+    statusEl.value = 'Fetching...';
+    
+    // Simulated data - in production, use CORS proxy or backend API
+    setTimeout(() => {
+        optionChainData = {
+            underlying: underlying,
+            currentPrice: 23897.95,
+            expiryDates: ['2026-04-28', '2026-05-19', '2026-06-09'],
+            optionChain: {
+                '2026-05-19': {
+                    calls: [23900, 23950, 24000].map(k => ({ strike: k, bid: 100 + Math.random() * 50, ask: 100 + Math.random() * 50 })),
+                    puts: [23850, 23800, 23750].map(k => ({ strike: k, bid: 50 + Math.random() * 50, ask: 50 + Math.random() * 50 }))
+                }
+            }
+        };
+        
+        document.getElementById('currentPrice').value = optionChainData.currentPrice;
+        document.getElementById('expiryDate').innerHTML = optionChainData.expiryDates
+            .map(d => `<option>${d}</option>`).join('');
+        statusEl.value = 'Loaded ✓';
+        
+        renderLegs();
+        calculateAnalytics();
+    }, 800);
+}
+
+function setupEventListeners() {
+    document.getElementById('underlying').addEventListener('change', fetchOptionChain);
+}
+
+function showStatus(message, type = 'info') {
+    const el = document.getElementById('statusMessage');
+    el.className = `status-message ${type}`;
+    el.textContent = message;
+    setTimeout(() => el.textContent = '', 5000);
+}
+
+function clearBuilder() {
+    currentStrategy = null;
+    currentLegs = [];
+    document.getElementById('legsContainer').innerHTML = '';
+    document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('strategyTitle').textContent = 'Strategy Builder';
+    document.getElementById('strategyDescription').textContent = 'Select a strategy from the library to begin';
+}
+</script>
+
+</body>
+</html>
